@@ -7,7 +7,7 @@ const ResumeCard = ({ resume }: { resume: Resume }) => {
       className="resume-card animate-in fade-in duration-1000"
       to={`/resume/${resume.id}`}
     >
-      <div className="resume-card-header">
+      <div className="resume-card-header pt-5">
         <div className="flex flex-col items-center gap-2">
           <h2 className="!text-black font-bold break-words">
             {resume.companyName}
