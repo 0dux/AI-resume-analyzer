@@ -1,4 +1,3 @@
-
 const formatSize = (bytes: number): string => {
   if (bytes < 1024) {
     return bytes + " B";
@@ -11,3 +10,7 @@ const formatSize = (bytes: number): string => {
   }
 };
 export default formatSize;
+
+export const generateUUID = () => {
+  crypto.randomUUID();
+};

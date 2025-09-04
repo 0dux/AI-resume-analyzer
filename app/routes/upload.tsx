@@ -1,8 +1,13 @@
-import React, { useState, type FormEvent } from "react";
-import Navbar from "./components/Navbar";
+import { useState, type FormEvent } from "react";
 import FileUploader from "./components/FileUploader";
+import Navbar from "./components/Navbar";
+import { usePuterStore } from "~/lib/puter";
+import { convertPdfToImage } from "~/lib/pdf2img";
+import { generateUUID } from "~/lib/utils";
+import { prepareInstructions } from "constants/index";
 
 const upload = () => {
+  const { isLoading, auth, fs, ai, kv } = usePuterStore();
   const [isProcessing, setIsProcessing] = useState(false);
   const [statusText, setStatusText] = useState("");
 
@@ -11,22 +16,92 @@ const upload = () => {
     setFile(file);
   };
 
+  const handleAnalyze = async ({
+    companyName,
+    jobTitle,
+    jobDescription,
+    file,
+  }: {
+    companyName: string;
+    jobTitle: string;
+    jobDescription: string;
+    file: File;
+  }) => {
+    setIsProcessing(true);
+    setStatusText("File is being Uploaded...");
+
+    const uploadedFile = await fs.upload([file]);
+
+    if (!uploadedFile) {
+      return setStatusText("Error: File upload failed!!!");
+    }
+
+    setStatusText("Converting PDF to Image...");
+    const imageFile = convertPdfToImage(file); //yaha pe dikkat hai
+    console.log(imageFile);
+
+    const imgFile = (await imageFile).file;
+
+    if (!imgFile) {
+      return setStatusText("Error: PDF to image conversion failed!!!");
+    }
+
+    const uploadedImage = await fs.upload([imgFile]);
+
+    if (!uploadedImage) {
+      return setStatusText("Error: Failed to upload image!!!");
+    }
+
+    setStatusText("Preparing Data...");
+
+    const uuid = generateUUID();
+    const data = {
+      id: uuid,
+      resumePath: uploadedFile.path,
+      imagePath: uploadedImage.path,
+      companyName,
+      jobDescription,
+      jobTitle,
+      feedback: "",
+    };
+
+    await kv.set(`resume:${uuid}`, JSON.stringify(data));
+
+    setStatusText("Analyzing...");
+
+    const feedback = await ai.feedback(
+      uploadedFile.path,
+      prepareInstructions({ jobTitle, jobDescription })
+    );
+
+    if (!feedback) {
+      return setStatusText("Error: Failed to analyze resume!!!");
+    }
+
+    const feedbackText =
+      typeof feedback.message.content === "string"
+        ? feedback.message.content
+        : feedback.message.content[0].text;
+
+    data.feedback = JSON.parse(feedbackText);
+    await kv.set(`resume:${uuid}`, JSON.stringify(data));
+    setStatusText("Analysis complete!!!, redirecting...");
+    console.log(data);
+  };
+
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const form = e.currentTarget.closest("form");
     if (!form) return;
     const formData = new FormData(form);
 
-    const companyName = formData.get("company-name");
-    const jobTitle = formData.get("job-title");
-    const jobDescription = formData.get("job-description");
+    const companyName = formData.get("company-name") as string;
+    const jobTitle = formData.get("job-title") as string;
+    const jobDescription = formData.get("job-description") as string;
 
-    console.log({
-      companyName,
-      jobTitle,
-      jobDescription,
-      file,
-    });
+    if (!file) return; //this is very important for removing the ts error cause by file type = <File | null>
+
+    handleAnalyze({ companyName, jobTitle, jobDescription, file });
   };
   return (
     <main className="bg-[url('images/bg-main.svg') bg-cover]">
