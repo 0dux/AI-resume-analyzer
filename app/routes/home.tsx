@@ -1,10 +1,10 @@
 import { resumes } from "constants/index";
+import { useEffect } from "react";
+import { useNavigate } from "react-router";
+import { usePuterStore } from "~/lib/puter";
 import type { Route } from "./+types/home";
 import Navbar from "./components/Navbar";
 import ResumeCard from "./components/ResumeCard";
-import { usePuterStore } from "~/lib/puter";
-import { useLocation, useNavigate } from "react-router";
-import { useEffect } from "react";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -15,8 +15,6 @@ export function meta({}: Route.MetaArgs) {
 
 export default function Home() {
   const { auth } = usePuterStore();
-  //use location is used to grab the location from the url
-  const location = useLocation();
   //is the hook used for navigation
   const navigate = useNavigate();
   useEffect(() => {

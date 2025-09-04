@@ -10,7 +10,7 @@ const Navbar = () => {
         <p className="primary-button w-fit">Upload Resume</p>
       </Link>
     </nav>
-  ); 
+  );
 };
 
 export default Navbar;
