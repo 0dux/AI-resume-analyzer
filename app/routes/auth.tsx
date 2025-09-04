@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import { useLocation, useNavigate } from "react-router";
 import { usePuterStore } from "~/lib/puter";
 
-const auth = () => {
+const Auth = () => {
   const { isLoading, auth } = usePuterStore();
   //use location is used to grab the location from the url
   const location = useLocation();
@@ -50,4 +50,4 @@ const auth = () => {
   );
 };
 
-export default auth;
+export default Auth;

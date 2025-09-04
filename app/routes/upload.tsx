@@ -5,8 +5,10 @@ import { usePuterStore } from "~/lib/puter";
 import { convertPdfToImage } from "~/lib/pdf2img";
 import { generateUUID } from "~/lib/utils";
 import { prepareInstructions } from "constants/index";
+import { useNavigate } from "react-router";
 
-const upload = () => {
+const Upload = () => {
+  const navigate = useNavigate();
   const { isLoading, auth, fs, ai, kv } = usePuterStore();
   const [isProcessing, setIsProcessing] = useState(false);
   const [statusText, setStatusText] = useState("");
@@ -84,9 +86,16 @@ const upload = () => {
         : feedback.message.content[0].text;
 
     data.feedback = JSON.parse(feedbackText);
+
     await kv.set(`resume:${uuid}`, JSON.stringify(data));
-    setStatusText("Analysis complete!!!, redirecting...");
+
     console.log(data);
+
+    setStatusText("Analysis complete!!!, redirecting...");
+
+    console.log(uuid);
+
+    navigate(`/resume/${uuid}`);
   };
 
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
@@ -111,8 +120,10 @@ const upload = () => {
           <h1>Smart feedback for your dream job</h1>
           {isProcessing ? (
             <>
-              <h2>{statusText}</h2>
-              <img src="/images/resume-scan.gif" className="w-full" />
+              <div>
+                <h2>{statusText}</h2>
+                <img src="/images/resume-scan.gif" className="w-full" />
+              </div>
             </>
           ) : (
             <>
@@ -169,4 +180,4 @@ const upload = () => {
   );
 };
 
-export default upload;
+export default Upload;
