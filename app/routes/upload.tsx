@@ -6,14 +6,22 @@ import { convertPdfToImage } from "~/lib/pdf2img";
 import { generateUUID } from "~/lib/utils";
 import { prepareInstructions } from "constants/index";
 import { useNavigate } from "react-router";
+import type { Route } from "../+types/root";
+
+export function meta({}: Route.MetaArgs) {
+  return [
+    { title: "Resumind | UploadResume" },
+    { name: "description", content: "Upload your resume for analysis report" },
+  ];
+}
 
 const Upload = () => {
   const navigate = useNavigate();
   const { isLoading, auth, fs, ai, kv } = usePuterStore();
   const [isProcessing, setIsProcessing] = useState(false);
   const [statusText, setStatusText] = useState("");
-
   const [file, setFile] = useState<File | null>(null);
+
   const handleFileSelect = (file: File | null) => {
     setFile(file);
   };
@@ -39,16 +47,14 @@ const Upload = () => {
     }
 
     setStatusText("Converting PDF to Image...");
-    const imageFile = convertPdfToImage(file); //yaha pe dikkat hai
+    const imageFile = await convertPdfToImage(file); //yaha pe dikkat hai
     console.log(imageFile);
 
-    const imgFile = (await imageFile).file;
-
-    if (!imgFile) {
+    if (!imageFile.file) {
       return setStatusText("Error: PDF to image conversion failed!!!");
     }
 
-    const uploadedImage = await fs.upload([imgFile]);
+    const uploadedImage = await fs.upload([imageFile.file]);
 
     if (!uploadedImage) {
       return setStatusText("Error: Failed to upload image!!!");
@@ -86,16 +92,11 @@ const Upload = () => {
         : feedback.message.content[0].text;
 
     data.feedback = JSON.parse(feedbackText);
-
     await kv.set(`resume:${uuid}`, JSON.stringify(data));
-
-    console.log(data);
-
     setStatusText("Analysis complete!!!, redirecting...");
-
-    console.log(uuid);
-
-    navigate(`/resume/${uuid}`);
+    console.log(feedback);
+    console.log(feedbackText);
+    navigate(`/resume/${uuid}`); //is me issue nahi hai issue route.ts me tha usme routing ka tarika galat tha
   };
 
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
@@ -122,7 +123,11 @@ const Upload = () => {
             <>
               <div>
                 <h2>{statusText}</h2>
-                <img src="/images/resume-scan.gif" className="w-full" />
+                <img
+                  src="/images/resume-scan.gif"
+                  alt="Scanning gif"
+                  className="w-full"
+                />
               </div>
             </>
           ) : (
