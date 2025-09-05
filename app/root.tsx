@@ -7,10 +7,10 @@ import {
   ScrollRestoration,
 } from "react-router";
 
+import { useEffect } from "react";
 import type { Route } from "./+types/root";
 import "./app.css";
 import { usePuterStore } from "./lib/puter";
-import { useEffect } from "react";
 
 export const links: Route.LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -36,6 +36,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <link rel="icon" type="image/x-icon" href="/favicon-copy.ico" />
         <Meta />
         <Links />
       </head>
