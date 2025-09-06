@@ -28,13 +28,13 @@ const Upload = () => {
 
   const handleAnalyze = async ({
     companyName,
-    jobTitle,
-    jobDescription,
+    jobTitle = "No job title given so consider him to be a new graduate and use his resume information to determine his role",
+    jobDescription = "No job description is given so just compare his resume with general resumes and give feedback based on that",
     file,
   }: {
     companyName: string;
-    jobTitle: string;
-    jobDescription: string;
+    jobTitle?: string;
+    jobDescription?: string;
     file: File;
   }) => {
     setIsProcessing(true);
