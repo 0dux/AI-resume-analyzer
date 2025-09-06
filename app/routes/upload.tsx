@@ -48,7 +48,7 @@ const Upload = () => {
 
     setStatusText("Converting PDF to Image...");
     const imageFile = await convertPdfToImage(file); //yaha pe dikkat hai
-    console.log(imageFile);
+    // console.log(imageFile);
 
     if (!imageFile.file) {
       return setStatusText("Error: PDF to image conversion failed!!!");
@@ -94,8 +94,8 @@ const Upload = () => {
     data.feedback = JSON.parse(feedbackText);
     await kv.set(`resume:${uuid}`, JSON.stringify(data));
     setStatusText("Analysis complete!!!, redirecting...");
-    console.log(feedback);
-    console.log(feedbackText);
+    // console.log(feedback);
+    // console.log(feedbackText);
     navigate(`/resume/${uuid}`); //is me issue nahi hai issue route.ts me tha usme routing ka tarika galat tha
   };
 
